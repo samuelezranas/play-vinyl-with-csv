@@ -7,6 +7,14 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-3.4.1-38b2ac)
 ![Framer Motion](https://img.shields.io/badge/Framer%20Motion-12.38.0-ff1461)
 
+## 🧩 Reusable Integration Guide
+
+You can integrate the `PlayVinylCSV` component into any existing React project. It is designed to be a standalone UI module.
+Ensure your project has the following dependencies installed:
+```bash
+npm install framer-motion lucide-react clsx tailwind-merge
+```
+
 ## ✨ Features
 
 ### Empty State
