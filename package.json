@@ -1,8 +1,45 @@
 {
   "name": "play-vinyl-csv",
-  "private": true,
-  "version": "0.0.0",
+  "description": "TECH-FUSION Cyber Vinyl Audio Portal - Transforms Spotify playlists into an interactive vinyl record player",
+  "version": "2.0.0",
+  "private": false,
   "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./components": {
+      "import": "./src/PlayVinylCSV.jsx",
+      "require": "./dist/PlayVinylCSV.cjs"
+    },
+    "./parser": {
+      "import": "./src/SpotifyParser.js",
+      "require": "./dist/SpotifyParser.cjs"
+    },
+    "./styles": "./src/index.css"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "spotify",
+    "playlist",
+    "vinyl",
+    "music",
+    "player",
+    "react",
+    "tailwind",
+    "framer-motion",
+    "glassmorphism",
+    "cyber"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
