@@ -1,357 +1,440 @@
-import { motion } from 'framer-motion';
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, RotateCw, Menu } from 'lucide-react';
+import { useMemo } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { Play, Pause, SkipBack, SkipForward, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
 
-/**
- * Vinyl Disc Component - High-Fidelity CSS Record with Realistic Grooves
- */
-const VinylDisc = ({ isPlaying, discImage, albumTitle, artistName }) => {
-  return (
-    <motion.div
-      animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-      transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : { duration: 0.6 }}
-      className="relative flex-shrink-0"
-      style={{ width: '220px', height: '220px' }}
-    >
-      {/* Vinyl Record - Premium CSS */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `
-            radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
-            repeating-radial-gradient(
-              circle at center,
-              #0a0a0a 0px,
-              #111111 0.5px,
-              #0f0f0f 1px,
-              #0a0a0a 1.5px,
-              #080808 2px
-            ),
-            radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 30%, #000000 100%)
-          `,
-          boxShadow: `
-            inset 0 0 80px rgba(0,0,0,1),
-            inset 0 -40px 80px rgba(0,0,0,0.95),
-            inset 20px 20px 60px rgba(255,255,255,0.05),
-            0 0 120px rgba(180,77,255,0.7),
-            0 0 200px rgba(236,72,153,0.5),
-            0 40px 100px rgba(0,0,0,0.98)
-          `,
-          filter: 'drop-shadow(0 0 60px rgba(180,77,255,0.4))'
-        }}
-      >
-        {/* Center Label - Album Art */}
-        <div className="absolute inset-16 rounded-full overflow-hidden bg-gradient-to-br from-gray-950 to-black border-4 border-gray-800/50 flex items-center justify-center shadow-2xl">
-          {discImage ? (
-            <img
-              src={discImage}
-              alt="album"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="text-center p-4">
-              <p className="text-xs font-black text-white/70 uppercase tracking-wider">
-                {albumTitle?.substring(0, 12) || 'Vinyl'}
-              </p>
-              <p className="text-xs text-white/50 mt-2">
-                {artistName?.substring(0, 15) || 'Album'}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Center Spindle */}
-        <div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            width: '28px',
-            height: '28px',
-            background: 'radial-gradient(circle at 30% 30%, rgba(200,200,200,0.3), #1a1a1a)',
-            border: '3px solid rgba(100,100,100,0.6)',
-            boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.1), 0 0 30px rgba(180,77,255,0.3)'
-          }}
-        />
-
-        {/* Realistic Light Reflection */}
-        <motion.div
-          animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-          transition={isPlaying ? { duration: 2, repeat: Infinity, ease: 'linear' } : {}}
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: `
-              conic-gradient(
-                from 30deg at 25% 25%,
-                rgba(255,255,255,0.4) 0deg,
-                rgba(255,255,255,0.15) 80deg,
-                rgba(255,255,255,0) 160deg,
-                transparent 270deg
-              )
-            `
-          }}
-        />
-      </div>
-    </motion.div>
-  );
-};
-
-/**
- * Play/Pause Button - Large Prominent Center Control with Neon Glow
- */
-const PlayPauseButton = ({ isPlaying, onClick }) => {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.12 }}
-      whileTap={{ scale: 0.88 }}
-      onClick={onClick}
-      className="relative flex items-center justify-center"
-      style={{ width: '100px', height: '100px' }}
-    >
-      {/* Outer Glow Ring */}
-      <motion.div
-        animate={isPlaying ? { scale: [0.95, 1.1, 0.95], opacity: [0.8, 0.4, 0.8] } : { scale: 1, opacity: 0.3 }}
-        transition={isPlaying ? { duration: 2, repeat: Infinity } : {}}
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `
-            radial-gradient(circle at 30% 30%, 
-              rgba(236,72,153,0.8) 0%,
-              rgba(236,72,153,0.3) 50%,
-              transparent 100%
-            )
-          `,
-          boxShadow: `
-            0 0 60px rgba(236,72,153,1),
-            0 0 100px rgba(180,77,255,0.6),
-            inset 0 0 30px rgba(255,255,255,0.15)
-          `,
-          filter: 'blur(1px)'
-        }}
-      />
-
-      {/* Button Surface */}
-      <div
-        className="relative flex items-center justify-center rounded-full font-black text-white z-10"
-        style={{
-          width: '100px',
-          height: '100px',
-          background: `
-            linear-gradient(135deg, 
-              rgba(236,72,153,0.95) 0%,
-              rgba(190,30,120,1) 100%
-            )
-          `,
-          boxShadow: `
-            inset 0 2px 15px rgba(255,255,255,0.3),
-            inset 0 -3px 15px rgba(0,0,0,0.4),
-            0 0 50px rgba(236,72,153,0.9),
-            0 0 100px rgba(180,77,255,0.5),
-            0 15px 40px rgba(0,0,0,0.6)
-          `,
-          border: '2px solid rgba(255,255,255,0.4)'
-        }}
-      >
-        {isPlaying ? (
-          <Pause size={48} className="text-white fill-white" />
-        ) : (
-          <Play size={48} className="text-white fill-white ml-2" />
-        )}
-      </div>
-    </motion.button>
-  );
-};
-
-/**
- * Control Button with Premium Styling
- */
-const ControlButton = ({ Icon, onClick, tooltip, size = 22 }) => {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.2, y: -4 }}
-      whileTap={{ scale: 0.85 }}
-      onClick={onClick}
-      title={tooltip}
-      className="p-3 rounded-full transition-all duration-300 group relative"
-      style={{
-        background: 'linear-gradient(135deg, rgba(180,77,255,0.3) 0%, rgba(236,72,153,0.2) 100%)',
-        border: '1.5px solid rgba(255,255,255,0.3)',
-        boxShadow: '0 0 25px rgba(180,77,255,0.4), inset 0 0 15px rgba(255,255,255,0.1)'
-      }}
-    >
-      <Icon size={size} className="text-white group-hover:text-pink-300 transition-colors" strokeWidth={1.5} />
-    </motion.button>
-  );
-};
-
-/**
- * Seek Button with Directional Styling
- */
-const SeekButton = ({ direction, onClick }) => {
-  const Icon = direction === 'back' ? RotateCcw : RotateCw;
-  return (
-    <motion.button
-      whileHover={{ scale: 1.2, y: -4 }}
-      whileTap={{ scale: 0.85 }}
-      onClick={onClick}
-      className="p-3 rounded-full transition-all duration-300 relative group"
-      style={{
-        background: 'linear-gradient(135deg, rgba(180,77,255,0.3) 0%, rgba(236,72,153,0.2) 100%)',
-        border: '1.5px solid rgba(255,255,255,0.3)',
-        boxShadow: '0 0 25px rgba(180,77,255,0.4), inset 0 0 15px rgba(255,255,255,0.1)'
-      }}
-    >
-      <Icon size={22} className="text-white group-hover:text-pink-300 transition-colors" strokeWidth={1.5} />
-      <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-black text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-        {direction === 'back' ? '-5s' : '+5s'}
-      </span>
-    </motion.button>
-  );
-};
-
-/**
- * Main PlayVinylCSV Component - Premium Vinyl Player
- */
-const PlayVinylCSV = ({
-  tracks = [],
-  currentTrackIndex = 0,
-  isPlaying = false,
-  discImage = null,
+export default function PlayVinylCSV({
+  tracks,
+  currentTrackIndex,
+  isPlaying,
+  paginatedTracks,
+  playlistPage,
+  totalPages,
+  showPlaylist,
+  isDesktop,
   onPlayPause,
   onNext,
   onPrev,
   onSeekBack,
   onSeekForward,
-  onToggleDrawer,
-  className = '',
-}) => {
-  const currentTrack = tracks[currentTrackIndex] || {};
+  onSelectTrack,
+  onTogglePlaylist,
+  onPrevPage,
+  onNextPage,
+  onUpload,
+}) {
+  const isMobileDevice = useMemo(() => !isDesktop, [isDesktop]);
 
   return (
-    <div className={`fixed z-[9999] ${className}`}>
-      {/* Desktop Layout - Floating Pill */}
-      <div className="hidden md:block">
+    <LayoutGroup>
+      {/* Desktop Layout */}
+      {isDesktop && (
         <motion.div
-          className="fixed bottom-12 left-1/2 transform -translate-x-1/2"
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="fixed inset-0 flex items-center justify-center p-8 z-10"
         >
-          {/* Premium Glassmorphism Floating Pill */}
-          <motion.div
-            layout
-            className="rounded-full px-2 py-2 flex items-center gap-6"
-            style={{
-              background: 'rgba(20,20,40,0.75)',
-              backdropFilter: 'blur(30px)',
-              border: '1.5px solid rgba(255,255,255,0.25)',
-              boxShadow: `
-                0 0 150px rgba(180,77,255,0.6),
-                0 0 100px rgba(236,72,153,0.4),
-                inset 0 0 40px rgba(255,255,255,0.08),
-                0 20px 60px rgba(0,0,0,0.7)
-              `,
-              padding: '16px 24px'
-            }}
-          >
-            {/* Vinyl Disc */}
-            <div className="flex-shrink-0">
-              <VinylDisc
-                isPlaying={isPlaying}
-                discImage={discImage}
-                albumTitle={currentTrack.trackName}
-                artistName={currentTrack.artistNames}
-              />
-            </div>
-
-            {/* Controls Section */}
+          <div className="w-full max-w-5xl h-full flex flex-col items-center justify-center gap-12">
+            {/* Vinyl Turntable Section */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center gap-8"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8, type: 'spring', stiffness: 100 }}
+              className="relative w-80 h-80 rounded-full flex items-center justify-center"
             >
-              {/* Track Info */}
-              <div className="hidden lg:flex flex-col min-w-max pr-6 border-r border-white/20">
-                <p className="text-sm font-black text-white/95 truncate max-w-xs">
-                  {currentTrack.trackName}
-                </p>
-                <p className="text-xs text-white/60 truncate max-w-xs font-light">
-                  {currentTrack.artistNames}
-                </p>
+              {/* Vinyl Record Container */}
+              <div className="relative w-full h-full">
+                {/* Outer turntable base */}
+                <motion.div
+                  className="absolute inset-0 rounded-full border-4 border-cyan-400/30"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(180,77,255,0.05) 100%)',
+                    boxShadow: '0 0 60px rgba(0,255,255,0.3), inset 0 0 40px rgba(0,255,255,0.1)',
+                  }}
+                />
+
+                {/* Vinyl Record (Pure CSS) */}
+                <motion.div
+                  animate={isPlaying ? { rotate: 360 } : {}}
+                  transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+                  className="absolute inset-4 rounded-full overflow-hidden"
+                >
+                  {/* Matte black base */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-950 rounded-full" />
+
+                  {/* Vinyl groove texture */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 200" preserveAspectRatio="none">
+                    <defs>
+                      <radialGradient id="vinyl-groove">
+                        <stop offset="0%" stopColor="rgba(255,255,255,0.02)" />
+                        <stop offset="50%" stopColor="rgba(255,255,255,0.005)" />
+                        <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+                      </radialGradient>
+                    </defs>
+                    {[...Array(12)].map((_, i) => (
+                      <circle
+                        key={i}
+                        cx="100"
+                        cy="100"
+                        r={20 + i * 14}
+                        fill="none"
+                        stroke="rgba(255,255,255,0.03)"
+                        strokeWidth="1"
+                      />
+                    ))}
+                  </svg>
+
+                  {/* Vinyl reflection */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 via-transparent to-cyan-600/20" />
+                </motion.div>
+
+                {/* Center label */}
+                <motion.div
+                  animate={isPlaying ? { rotate: 360 } : {}}
+                  transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+                  className="absolute inset-20 rounded-full flex flex-col items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 50%, #b44dff 100%)',
+                    boxShadow: '0 0 40px rgba(180,77,255,0.8), inset 0 0 20px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <div className="text-center px-4">
+                    <p className="text-white font-black text-xs tracking-widest uppercase mb-1">Now Playing</p>
+                    <p className="text-white font-black text-sm line-clamp-2">
+                      {tracks[currentTrackIndex]?.trackName || 'No Track'}
+                    </p>
+                    <p className="text-white/70 font-light text-xs mt-2 line-clamp-1">
+                      {tracks[currentTrackIndex]?.artistNames || 'Unknown Artist'}
+                    </p>
+                  </div>
+
+                  {/* Spinning center dot */}
+                  <motion.div
+                    animate={isPlaying ? { scale: [1, 1.2, 1] } : {}}
+                    transition={isPlaying ? { duration: 1, repeat: Infinity } : {}}
+                    className="absolute w-3 h-3 bg-white rounded-full top-6 opacity-80"
+                  />
+                </motion.div>
+
+                {/* Needle arm */}
+                <motion.div
+                  animate={isPlaying ? { rotate: [0, 5, 0] } : {}}
+                  transition={isPlaying ? { duration: 0.5, repeat: Infinity, repeatType: 'mirror' } : {}}
+                  className="absolute top-0 right-1/4 w-16 h-24 origin-top"
+                  style={{
+                    transformOrigin: '50% 0%',
+                  }}
+                >
+                  <div className="w-1 h-full bg-gradient-to-b from-gray-300 to-gray-600 rounded-full" />
+                  <div className="absolute -bottom-3 -right-1 w-4 h-4 bg-gradient-to-br from-gray-400 to-gray-700 rounded-full border border-gray-300" />
+                </motion.div>
               </div>
 
-              {/* Control Buttons */}
-              <div className="flex items-center gap-5">
-                {/* Previous */}
-                <ControlButton Icon={SkipBack} onClick={onPrev} tooltip="Previous Track" size={24} />
-
-                {/* Seek Back */}
-                <SeekButton direction="back" onClick={onSeekBack} />
-
-                {/* Play/Pause - Center Large Button */}
-                <div className="px-1">
-                  <PlayPauseButton isPlaying={isPlaying} onClick={onPlayPause} />
-                </div>
-
-                {/* Seek Forward */}
-                <SeekButton direction="forward" onClick={onSeekForward} />
-
-                {/* Next */}
-                <ControlButton Icon={SkipForward} onClick={onNext} tooltip="Next Track" size={24} />
-
-                {/* Menu */}
-                <ControlButton Icon={Menu} onClick={onToggleDrawer} tooltip="Show Playlist" size={24} />
-              </div>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Mobile Layout - Top Navbar */}
-      <motion.div
-        className="md:hidden fixed top-0 left-0 w-full"
-        style={{
-          background: 'rgba(20,20,40,0.85)',
-          backdropFilter: 'blur(25px)',
-          borderBottom: '1px solid rgba(255,255,255,0.15)',
-          boxShadow: '0 0 60px rgba(180,77,255,0.5)'
-        }}
-      >
-        <div className="flex items-center justify-between px-4 py-3 gap-3">
-          {/* Left: Vinyl + Track Info */}
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <motion.div animate={isPlaying ? { rotate: 360 } : {}} transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}>
-              <div
-                className="rounded-full flex-shrink-0"
+              {/* Glow ring around vinyl */}
+              <motion.div
+                animate={isPlaying ? { opacity: [0.5, 1, 0.5] } : {}}
+                transition={isPlaying ? { duration: 2, repeat: Infinity } : {}}
+                className="absolute -inset-8 rounded-full border-2 border-purple-500/30"
                 style={{
-                  width: '56px',
-                  height: '56px',
-                  background: discImage ? `url(${discImage})` : 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%), repeating-radial-gradient(circle at center, #0a0a0a 0px, #111 0.5px, #0f0f0f 1px), radial-gradient(circle at center, #1a1a1a 0%, #000 100%)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  boxShadow: `
-                    inset 0 0 20px rgba(0,0,0,0.8),
-                    0 0 30px rgba(180,77,255,0.5)
-                  `,
-                  border: '1px solid rgba(255,255,255,0.2)'
+                  boxShadow: isPlaying
+                    ? '0 0 60px rgba(180,77,255,0.6), 0 0 120px rgba(236,72,153,0.4)'
+                    : '0 0 20px rgba(180,77,255,0.3)',
                 }}
               />
             </motion.div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-black text-white truncate">{currentTrack.trackName}</p>
-              <p className="text-xs text-white/60 truncate font-light">{currentTrack.artistNames}</p>
-            </div>
-          </div>
 
-          {/* Right: Controls */}
-          <div className="flex items-center gap-2">
-            <ControlButton Icon={SkipBack} onClick={onPrev} tooltip="Previous" size={18} />
-            <div style={{ width: '64px', height: '64px' }} className="flex items-center justify-center">
-              <PlayPauseButton isPlaying={isPlaying} onClick={onPlayPause} />
-            </div>
-            <ControlButton Icon={SkipForward} onClick={onNext} tooltip="Next" size={18} />
-            <ControlButton Icon={Menu} onClick={onToggleDrawer} tooltip="Playlist" size={18} />
+            {/* Track Info & Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center"
+            >
+              <p className="text-purple-400 font-black text-sm tracking-widest uppercase mb-2">
+                {currentTrackIndex + 1} / {tracks.length}
+              </p>
+              <h2 className="text-3xl font-black text-white mb-2 line-clamp-2">
+                {tracks[currentTrackIndex]?.trackName}
+              </h2>
+              <p className="text-gray-400 text-sm">
+                {tracks[currentTrackIndex]?.artistNames}
+              </p>
+            </motion.div>
+
+            {/* Floating Controller Pill */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6, type: 'spring', stiffness: 100 }}
+              className="glass neon-border rounded-full px-8 py-6 flex items-center gap-8"
+            >
+              {/* Prev Button */}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onPrev}
+                disabled={currentTrackIndex === 0}
+                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all"
+              >
+                <SkipBack size={24} className="text-purple-400" />
+              </motion.button>
+
+              {/* Seek Back */}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onSeekBack}
+                className="p-3 rounded-full hover:bg-purple-500/20 transition-all"
+              >
+                <RotateCcw size={20} className="text-gray-400" />
+              </motion.button>
+
+              {/* Play/Pause - Center */}
+              <motion.button
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onPlayPause}
+                className="relative p-4 rounded-full"
+                style={{
+                  background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 100%)',
+                  boxShadow: isPlaying
+                    ? '0 0 40px rgba(180,77,255,0.8), 0 0 80px rgba(236,72,153,0.6)'
+                    : '0 0 20px rgba(180,77,255,0.4)',
+                }}
+                animate={isPlaying ? { scale: [1, 1.05, 1] } : {}}
+                transition={isPlaying ? { duration: 1.5, repeat: Infinity } : {}}
+              >
+                {isPlaying ? (
+                  <Pause size={28} className="text-white" fill="white" />
+                ) : (
+                  <Play size={28} className="text-white" fill="white" />
+                )}
+              </motion.button>
+
+              {/* Seek Forward */}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onSeekForward}
+                className="p-3 rounded-full hover:bg-purple-500/20 transition-all"
+              >
+                <RotateCcw size={20} className="text-gray-400 rotate-180" />
+              </motion.button>
+
+              {/* Next Button */}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onNext}
+                disabled={currentTrackIndex === tracks.length - 1}
+                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all"
+              >
+                <SkipForward size={24} className="text-purple-400" />
+              </motion.button>
+            </motion.div>
+
+            {/* Playlist Toggle & Upload */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="flex gap-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onTogglePlaylist}
+                className="glass neon-border rounded-full px-6 py-3 font-black text-sm uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-all"
+              >
+                {showPlaylist ? '◄ Hide' : 'Playlist ►'}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onUpload}
+                className="glass rounded-full px-6 py-3 font-black text-sm uppercase tracking-wider text-gray-300 hover:text-white transition-all border border-gray-600/30"
+              >
+                Load CSV
+              </motion.button>
+            </motion.div>
           </div>
-        </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      )}
+
+      {/* Mobile Layout - Fixed Navbar */}
+      {isMobileDevice && (
+        <motion.div
+          layout
+          initial={{ y: 0 }}
+          animate={{ y: 0 }}
+          className="fixed top-0 left-0 right-0 z-20"
+        >
+          {/* Mobile Top Bar */}
+          <div className="glass rounded-b-2xl px-4 py-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Track Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-purple-400 font-black text-xs uppercase tracking-widest truncate">
+                  {tracks[currentTrackIndex]?.trackName}
+                </p>
+                <p className="text-gray-400 text-xs truncate">
+                  {tracks[currentTrackIndex]?.artistNames}
+                </p>
+              </div>
+
+              {/* Mini Buttons */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                onClick={onPlayPause}
+                className="p-2 rounded-full bg-purple-600 hover:bg-purple-500 transition-all"
+              >
+                {isPlaying ? (
+                  <Pause size={16} className="text-white" fill="white" />
+                ) : (
+                  <Play size={16} className="text-white" fill="white" />
+                )}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                onClick={onTogglePlaylist}
+                className="p-2 rounded-full border border-purple-500/30 hover:bg-purple-500/10"
+              >
+                <ChevronDown size={16} className="text-purple-400" />
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Playlist Drawer */}
+      <AnimatePresence>
+        {showPlaylist && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onTogglePlaylist}
+            className="fixed inset-0 z-10 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ y: isMobileDevice ? '100%' : 0, x: isMobileDevice ? 0 : '100%', opacity: 0 }}
+              animate={{ y: 0, x: 0, opacity: 1 }}
+              exit={{ y: isMobileDevice ? '100%' : 0, x: isMobileDevice ? 0 : '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`fixed glass rounded-t-3xl overflow-hidden flex flex-col ${
+                isMobileDevice
+                  ? 'bottom-0 left-0 right-0 h-3/4'
+                  : 'right-0 top-0 bottom-0 w-96'
+              }`}
+              style={{
+                borderTop: isMobileDevice ? '2px solid rgba(180,77,255,0.3)' : 'none',
+                borderLeft: !isMobileDevice ? '2px solid rgba(180,77,255,0.3)' : 'none',
+              }}
+            >
+              {/* Header */}
+              <div className="border-b border-purple-500/20 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-black text-white">Playlist</h3>
+                    <p className="text-xs text-purple-400 font-mono mt-1">
+                      {playlistPage * 10 + 1}-{Math.min((playlistPage + 1) * 10, tracks.length)} / {tracks.length}
+                    </p>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    onClick={onTogglePlaylist}
+                    className="p-2 rounded-full hover:bg-purple-500/10 transition-all"
+                  >
+                    ✕
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Tracks List */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 space-y-2">
+                  {paginatedTracks.map((track, index) => {
+                    const globalIndex = playlistPage * 10 + index;
+                    const isActive = globalIndex === currentTrackIndex;
+
+                    return (
+                      <motion.button
+                        key={globalIndex}
+                        whileHover={{ x: 4 }}
+                        onClick={() => onSelectTrack(index)}
+                        className={`w-full text-left p-3 rounded-lg transition-all duration-300 ${
+                          isActive
+                            ? 'border-l-2 border-pink-500 bg-gradient-to-r from-purple-500/20 to-transparent'
+                            : 'border-l-2 border-transparent hover:border-purple-500/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`text-xs font-black font-mono w-6 ${
+                              isActive ? 'text-pink-400' : 'text-gray-500'
+                            }`}
+                          >
+                            {globalIndex + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`font-bold text-sm truncate ${
+                                isActive ? 'text-white' : 'text-gray-300'
+                              }`}
+                            >
+                              {track.trackName}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {track.artistNames}
+                            </p>
+                          </div>
+                          {isActive && (
+                            <motion.div
+                              animate={{ scale: [1, 1.3, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                              className="w-2 h-2 rounded-full bg-pink-400"
+                            />
+                          )}
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Footer - Pagination */}
+              {totalPages > 1 && (
+                <div className="border-t border-purple-500/20 p-4 flex items-center justify-between">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    onClick={onPrevPage}
+                    disabled={playlistPage === 0}
+                    className="p-2 rounded-full hover:bg-purple-500/20 disabled:opacity-30 transition-all"
+                  >
+                    <ChevronUp size={20} className="text-purple-400" />
+                  </motion.button>
+
+                  <span className="text-xs text-purple-400 font-mono">
+                    Page {playlistPage + 1} / {totalPages}
+                  </span>
+
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    onClick={onNextPage}
+                    disabled={playlistPage === totalPages - 1}
+                    className="p-2 rounded-full hover:bg-purple-500/20 disabled:opacity-30 transition-all"
+                  >
+                    <ChevronDown size={20} className="text-purple-400" />
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </LayoutGroup>
   );
-};
-
-export default PlayVinylCSV;
+}

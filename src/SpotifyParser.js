@@ -1,79 +1,51 @@
-// SpotifyParser.js
-// Robust CSV parser for Spotify Exportify format
-// Handles quoted values, escaped commas, and standard CSV structure
-
 /**
- * Parses a CSV string into an array of track objects
- * @param {string} csvString - The raw CSV string from Exportify
- * @returns {Array} Array of track objects with trackName, artistNames, albumImageUrl, previewUrl
- * @throws {Error} If required headers are missing
+ * Parse Spotify Exportify CSV format
+ * Expected columns: Track URI, Track Name, Artist Name(s), Album Name, etc.
  */
-export function parseSpotifyCSV(csvString) {
-  const lines = csvString.trim().split('\n');
-  if (lines.length < 2) return [];
-
-  // Parse header row
-  const headers = parseCSVLine(lines[0]);
-  const requiredHeaders = ['Track Name', 'Artist Name(s)', 'Album Image URL', 'Track Preview URL'];
-
-  // Map header indices
-  const headerMap = {};
-  for (let i = 0; i < headers.length; i++) {
-    headerMap[headers[i]] = i;
-  }
-
-  // Validate required headers
-  for (const header of requiredHeaders) {
-    if (!(header in headerMap)) {
-      throw new Error(`Required CSV header "${header}" not found`);
+export const parseSpotifyCSV = (csvText) => {
+  try {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) {
+      throw new Error('CSV file is empty or invalid');
     }
-  }
 
-  // Parse data rows
-  const tracks = [];
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-    if (values.length >= headers.length) {
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const trackNameIndex = headers.findIndex(h => h.includes('track name'));
+    const artistIndex = headers.findIndex(h => h.includes('artist'));
+    const albumIndex = headers.findIndex(h => h.includes('album'));
+    const uriIndex = headers.findIndex(h => h.includes('uri'));
+
+    if (trackNameIndex === -1 || artistIndex === -1) {
+      throw new Error('Invalid CSV format: Missing required columns');
+    }
+
+    const tracks = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      const cells = line.split(',').map(cell => cell.trim());
+      const trackName = cells[trackNameIndex] || 'Unknown';
+      const artistNames = cells[artistIndex] || 'Unknown Artist';
+      const album = albumIndex !== -1 ? cells[albumIndex] : 'Unknown Album';
+      const uri = uriIndex !== -1 ? cells[uriIndex] : '';
+
+      // Get preview URL from Spotify API (if available)
+      // For now, we'll use a placeholder and fetch dynamically if needed
       tracks.push({
-        trackName: values[headerMap['Track Name']] || '',
-        artistNames: values[headerMap['Artist Name(s)']] || '',
-        albumImageUrl: values[headerMap['Album Image URL']] || '',
-        previewUrl: values[headerMap['Track Preview URL']] || '',
+        trackName,
+        artistNames,
+        album,
+        uri,
+        previewUrl: null,
+        albumImageUrl: null,
+        index: tracks.length
       });
     }
-  }
-  return tracks;
-}
 
-/**
- * Parses a single CSV line, handling quoted values and commas within quotes
- * @param {string} line - A single line from the CSV
- * @returns {Array} Array of parsed values
- */
-function parseCSVLine(line) {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        // Escaped quote
-        current += '"';
-        i++; // Skip next quote
-      } else {
-        // Toggle quote state
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      // Field separator
-      result.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
+    return tracks;
+  } catch (error) {
+    console.error('Error parsing CSV:', error);
+    throw error;
   }
-  // Add the last field
-  result.push(current);
-  return result;
-}
+};
