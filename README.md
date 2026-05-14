@@ -1,15 +1,17 @@
 # Play Vinyl CSV
 
-A premium, reusable React component that visualizes Spotify Exportify CSV data as a rotating vinyl record with playback controls.
+A premium, production-ready React component that visualizes Spotify Exportify CSV data as a rotating vinyl record with full playback controls.
 
 ## Features
 
-- **CSS-Only Vinyl Design**: Realistic grooves using `repeating-radial-gradient` and shimmer effects with `conic-gradient`
-- **Responsive Layouts**: Floating glassmorphism pill on desktop, slim navbar on mobile
-- **Smooth Animations**: 360-degree rotation during playback using Framer Motion
-- **Audio Playback**: HTML5 Audio API integration for track previews
-- **File Upload**: Dynamic CSV loading with FileReader API
-- **Customizable**: Optional disc image prop for center labels
+- **Glassmorphism UI**: Premium backdrop-blur effects with purple neon glow shadows
+- **Pure CSS Vinyl**: Realistic grooves using `repeating-radial-gradient` and shimmer effects with `conic-gradient`
+- **Full Controller Suite**: SkipBack, Seek -5s, Play/Pause, Seek +5s, SkipForward with tooltips
+- **Responsive Design**: Floating pill on desktop (expands/contracts with Framer Motion), top navbar on mobile
+- **Smooth Animations**: Infinite 360-degree rotation during playback
+- **Dynamic CSV Loading**: File uploader with loading states and instant playlist updates
+- **Audio Streaming**: HTML5 Audio API for 30-second Spotify previews
+- **Robust Parsing**: Handles quoted CSV values and escaped commas
 
 ## Installation
 
@@ -36,6 +38,9 @@ function MyApp() {
       discImage="https://example.com/disc.jpg"
       onPlayPause={() => {}}
       onNext={() => {}}
+      onPrev={() => {}}
+      onSeekBack={() => {}}
+      onSeekForward={() => {}}
       onChangeDisc={() => {}}
     />
   );
@@ -52,23 +57,19 @@ function MyApp() {
 | `discImage` | String | `null` | URL for center disc image |
 | `onPlayPause` | Function | - | Callback for play/pause button |
 | `onNext` | Function | - | Callback for next track button |
+| `onPrev` | Function | - | Callback for previous track button |
+| `onSeekBack` | Function | - | Callback for seek -5s button |
+| `onSeekForward` | Function | - | Callback for seek +5s button |
 | `onChangeDisc` | Function | - | Callback for change disc button |
 | `className` | String | `''` | Additional CSS classes |
 
 ## CSV Format
 
-The component expects CSV data from Spotify Exportify with these headers:
+Expects CSV data from Spotify Exportify with these headers:
 - `Track Name`
 - `Artist Name(s)`
 - `Album Image URL`
 - `Track Preview URL`
-
-## Dependencies
-
-- React 16+
-- Framer Motion
-- Tailwind CSS
-- Lucide React
 
 ## Demo
 
@@ -79,4 +80,12 @@ npm install
 npm run dev
 ```
 
-Upload a Spotify Exportify CSV file to see the vinyl player in action!
+Upload a Spotify Exportify CSV file to experience the full vinyl player with all controls!
+
+## Technical Details
+
+- **CSS-Only Vinyl**: No images, pure gradients for maximum performance
+- **Glassmorphism**: `backdrop-blur-xl`, `bg-white/5`, thin borders, neon shadows
+- **Responsive**: Desktop pill expands on play, mobile snaps to top navbar
+- **Audio**: HTML5 Audio with seek controls and auto-advancement
+- **Parsing**: Robust CSV handling for quoted fields and commas
