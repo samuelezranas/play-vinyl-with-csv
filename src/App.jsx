@@ -12,9 +12,11 @@ function App() {
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [playlistPage, setPlaylistPage] = useState(0);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
+  const dragRef = useRef(null);
 
   const TRACKS_PER_PAGE = 10;
   const totalPages = Math.ceil(tracks.length / TRACKS_PER_PAGE);
@@ -110,6 +112,52 @@ function App() {
     fileInputRef.current?.click();
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the drag container
+    if (e.target === dragRef.current) {
+      setIsDraggingOver(false);
+    }
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+
+    const files = e.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+
+    const file = Array.from(files).find(f => f.type === 'text/csv' || f.name.endsWith('.csv'));
+    if (!file) {
+      alert('Please drop a CSV file');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const text = await file.text();
+      const parsedTracks = await parseSpotifyCSV(text);
+      setTracks(parsedTracks);
+      setCurrentTrackIndex(0);
+      setPlaylistPage(0);
+      setIsPlaying(false);
+      setShowPlaylist(false);
+    } catch (error) {
+      console.error('Error parsing CSV:', error);
+      alert('Error parsing CSV file. Please ensure it\'s a valid Spotify Exportify CSV.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSelectTrack = (index) => {
     const globalIndex = playlistPage * TRACKS_PER_PAGE + index;
     setCurrentTrackIndex(globalIndex);
@@ -179,6 +227,10 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             className="fixed inset-0 flex items-center justify-center z-10"
+            ref={dragRef}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
             <div className="w-full max-w-md px-6 md:px-0">
               {/* Title */}
@@ -201,31 +253,48 @@ function App() {
                 onClick={handleUploadClick}
                 disabled={isLoading}
                 initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                animate={{ 
+                  scale: isDraggingOver ? 1.15 : 1, 
+                  opacity: 1,
+                }}
                 transition={{ delay: 0.4, duration: 0.5, type: 'spring', stiffness: 80 }}
-                whileHover={{ scale: isLoading ? 1 : 1.05 }}
+                whileHover={{ scale: isLoading ? 1 : (isDraggingOver ? 1.15 : 1.05) }}
                 className="w-full relative group cursor-pointer"
               >
                 {/* Portal glow container */}
                 <div className="relative w-full aspect-square flex items-center justify-center rounded-3xl overflow-hidden">
-                  {/* Animated background gradient */}
+                  {/* Animated background gradient - more intense when dragging */}
                   <motion.div
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
-                    className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-600/20 to-blue-600/10"
+                    animate={{ 
+                      opacity: isDraggingOver ? [0.9, 1, 0.9] : [0.6, 1, 0.6],
+                    }}
+                    transition={{ duration: isDraggingOver ? 1.5 : 2.5, repeat: Infinity }}
+                    className={`absolute inset-0 ${
+                      isDraggingOver 
+                        ? 'bg-gradient-to-br from-cyan-600/50 via-purple-600/40 to-pink-600/30' 
+                        : 'bg-gradient-to-br from-purple-600/30 via-pink-600/20 to-blue-600/10'
+                    }`}
                   />
 
-                  {/* Pulsing border glow */}
+                  {/* Pulsing border glow - more intense when dragging */}
                   <motion.div
                     animate={{
-                      boxShadow: [
-                        '0 0 60px rgba(180,77,255,0.6), 0 0 100px rgba(236,72,153,0.4)',
-                        '0 0 100px rgba(180,77,255,1), 0 0 150px rgba(236,72,153,0.8)',
-                        '0 0 60px rgba(180,77,255,0.6), 0 0 100px rgba(236,72,153,0.4)',
-                      ]
+                      boxShadow: isDraggingOver
+                        ? [
+                            '0 0 80px rgba(0,255,255,0.8), 0 0 120px rgba(180,77,255,0.6)',
+                            '0 0 120px rgba(0,255,255,1), 0 0 180px rgba(180,77,255,0.9)',
+                            '0 0 80px rgba(0,255,255,0.8), 0 0 120px rgba(180,77,255,0.6)',
+                          ]
+                        : [
+                            '0 0 60px rgba(180,77,255,0.6), 0 0 100px rgba(236,72,153,0.4)',
+                            '0 0 100px rgba(180,77,255,1), 0 0 150px rgba(236,72,153,0.8)',
+                            '0 0 60px rgba(180,77,255,0.6), 0 0 100px rgba(236,72,153,0.4)',
+                          ]
                     }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
-                    className="absolute inset-0 rounded-3xl border-2 border-purple-500/50"
+                    transition={{ duration: isDraggingOver ? 1.5 : 2.5, repeat: Infinity }}
+                    className={`absolute inset-0 rounded-3xl border-2 ${
+                      isDraggingOver ? 'border-cyan-500/80' : 'border-purple-500/50'
+                    }`}
                   />
 
                   {/* Backdrop blur */}
@@ -235,36 +304,66 @@ function App() {
                   <div className="relative z-10 flex flex-col items-center gap-6">
                     {/* Icon */}
                     <motion.div
-                      animate={{ y: [0, -12, 0], scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      animate={{ 
+                        y: isDraggingOver ? [0, -20, 0] : [0, -12, 0], 
+                        scale: isDraggingOver ? [1, 1.15, 1] : [1, 1.1, 1]
+                      }}
+                      transition={{ duration: isDraggingOver ? 1.2 : 2, repeat: Infinity }}
                       className="relative"
                     >
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                        className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-lg opacity-50"
+                        transition={{ duration: isDraggingOver ? 4 : 8, repeat: Infinity, ease: 'linear' }}
+                        className={`absolute inset-0 rounded-full blur-lg opacity-50 ${
+                          isDraggingOver 
+                            ? 'bg-gradient-to-br from-cyan-500 to-purple-500' 
+                            : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                        }`}
                         style={{ width: 120, height: 120 }}
                       />
-                      <div className="relative w-20 h-20 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 border-2 border-purple-400/50"
-                        style={{
-                          boxShadow: '0 0 30px rgba(180,77,255,0.8), inset 0 0 20px rgba(255,255,255,0.2)',
+                      <motion.div 
+                        animate={{
+                          boxShadow: isDraggingOver
+                            ? '0 0 40px rgba(0,255,255,1), inset 0 0 30px rgba(0,255,255,0.3)'
+                            : '0 0 30px rgba(180,77,255,0.8), inset 0 0 20px rgba(255,255,255,0.2)'
                         }}
+                        className={`relative w-20 h-20 flex items-center justify-center rounded-full border-2 ${
+                          isDraggingOver
+                            ? 'bg-gradient-to-br from-cyan-600 to-purple-600 border-cyan-400/80'
+                            : 'bg-gradient-to-br from-purple-600 to-pink-600 border-purple-400/50'
+                        }`}
                       >
-                        <Upload size={40} className="text-white" strokeWidth={1.5} />
-                      </div>
+                        <Upload 
+                          size={40} 
+                          className={`${isDraggingOver ? 'text-cyan-200' : 'text-white'}`}
+                          strokeWidth={1.5} 
+                        />
+                      </motion.div>
                     </motion.div>
 
                     {/* Text */}
                     <div className="text-center">
-                      <h2 className="text-xl md:text-2xl font-black text-white mb-2">
-                        {isLoading ? 'Parsing CSV...' : 'Upload Your Playlist'}
-                      </h2>
-                      <p className="text-xs md:text-sm text-gray-300 leading-relaxed">
+                      <motion.h2
+                        animate={{
+                          color: isDraggingOver ? '#00ffff' : '#ffffff'
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="text-xl md:text-2xl font-black mb-2"
+                      >
+                        {isLoading ? 'Parsing CSV...' : (isDraggingOver ? 'Drop Your Playlist!' : 'Upload Your Playlist')}
+                      </motion.h2>
+                      <motion.p
+                        animate={{
+                          color: isDraggingOver ? '#7ffff0' : '#d1d5db'
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="text-xs md:text-sm leading-relaxed"
+                      >
                         {isLoading
                           ? 'Loading your Spotify playlist'
-                          : 'Drag or click to load your Spotify Exportify CSV'
+                          : (isDraggingOver ? 'Release to load playlist' : 'Drag or click to load your Spotify Exportify CSV')
                         }
-                      </p>
+                      </motion.p>
                     </div>
 
                     {/* Loading indicator */}
@@ -274,6 +373,27 @@ function App() {
                         transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                         className="w-6 h-6 border-2 border-transparent border-t-pink-400 border-r-purple-400 rounded-full"
                       />
+                    )}
+
+                    {/* Drag indicator particles */}
+                    {isDraggingOver && (
+                      <>
+                        <motion.div
+                          animate={{ y: [0, -40], opacity: [1, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="absolute top-10 left-10 w-2 h-2 bg-cyan-400 rounded-full blur-sm"
+                        />
+                        <motion.div
+                          animate={{ y: [0, -50], opacity: [1, 0] }}
+                          transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }}
+                          className="absolute top-10 right-10 w-2 h-2 bg-purple-400 rounded-full blur-sm"
+                        />
+                        <motion.div
+                          animate={{ y: [0, -45], opacity: [1, 0] }}
+                          transition={{ duration: 1.6, repeat: Infinity, delay: 0.6 }}
+                          className="absolute bottom-20 left-1/4 w-2 h-2 bg-pink-400 rounded-full blur-sm"
+                        />
+                      </>
                     )}
                   </div>
                 </div>
