@@ -38,11 +38,26 @@ function App() {
   useEffect(() => {
     if (audioRef.current && tracks.length > 0) {
       const currentTrack = tracks[currentTrackIndex];
+      console.log(`Loading track: "${currentTrack.trackName}" by ${currentTrack.artistNames}`);
+      console.log(`Preview URL:`, currentTrack.previewUrl);
+      
       if (currentTrack?.previewUrl) {
         audioRef.current.src = currentTrack.previewUrl;
+        audioRef.current.load();
+        
         if (isPlaying) {
-          audioRef.current.play().catch(err => console.error('Playback error:', err));
+          audioRef.current.play()
+            .then(() => {
+              console.log('✓ Audio playing:', currentTrack.trackName);
+            })
+            .catch(err => {
+              console.error('✗ Playback error:', err);
+              console.warn('Preview URL may be unavailable or blocked by CORS');
+            });
         }
+      } else {
+        console.warn('⚠ No preview URL available for this track');
+        audioRef.current.src = '';
       }
     }
   }, [currentTrackIndex, tracks, isPlaying]);
@@ -206,7 +221,18 @@ function App() {
       </div>
 
       {/* Hidden audio element */}
-      <audio ref={audioRef} onEnded={handleNext} />
+      <audio 
+        ref={audioRef} 
+        onEnded={handleNext}
+        crossOrigin="anonymous"
+        onError={(e) => {
+          console.error('Audio error:', e.target.error?.message);
+          console.warn('If error is CORS: Preview URL may not support streaming');
+          setIsPlaying(false);
+        }}
+        onCanPlay={() => console.log('✓ Audio ready to play')}
+        onLoadStart={() => console.log('Loading audio...')}
+      />
       
       {/* Hidden file input */}
       <input

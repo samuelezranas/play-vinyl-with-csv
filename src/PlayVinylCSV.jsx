@@ -159,6 +159,15 @@ export default function PlayVinylCSV({
               <p className="text-gray-400 text-sm">
                 {tracks[currentTrackIndex]?.artistNames}
               </p>
+              {tracks[currentTrackIndex]?.previewUrl ? (
+                <p className="text-green-400 text-xs mt-2 font-semibold tracking-widest uppercase">
+                  ✓ Preview Available
+                </p>
+              ) : (
+                <p className="text-orange-400 text-xs mt-2 font-semibold tracking-widest uppercase">
+                  ⚠ Preview Unavailable
+                </p>
+              )}
             </motion.div>
 
             {/* Floating Controller Pill */}
@@ -262,49 +271,214 @@ export default function PlayVinylCSV({
         </motion.div>
       )}
 
-      {/* Mobile Layout - Fixed Navbar */}
+      {/* Mobile Layout - Turntable Preview */}
       {isMobileDevice && (
         <motion.div
           layout
-          initial={{ y: 0 }}
-          animate={{ y: 0 }}
-          className="fixed top-0 left-0 right-0 z-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="fixed inset-0 z-10 flex flex-col items-center justify-center p-4 pt-8"
         >
-          {/* Mobile Top Bar */}
-          <div className="glass rounded-b-2xl px-4 py-4">
-            <div className="flex items-center justify-between gap-4">
-              {/* Track Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-purple-400 font-black text-xs uppercase tracking-widest truncate">
-                  {tracks[currentTrackIndex]?.trackName}
-                </p>
-                <p className="text-gray-400 text-xs truncate">
-                  {tracks[currentTrackIndex]?.artistNames}
-                </p>
-              </div>
+          {/* Compact Mobile Turntable */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.6, type: 'spring', stiffness: 100 }}
+            className="relative w-48 h-48 rounded-full flex items-center justify-center mb-8"
+          >
+            {/* Vinyl Record Container */}
+            <div className="relative w-full h-full">
+              {/* Outer turntable base */}
+              <motion.div
+                className="absolute inset-0 rounded-full border-4 border-cyan-400/30"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(180,77,255,0.05) 100%)',
+                  boxShadow: '0 0 40px rgba(0,255,255,0.2), inset 0 0 30px rgba(0,255,255,0.1)',
+                }}
+              />
 
-              {/* Mini Buttons */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                onClick={onPlayPause}
-                className="p-2 rounded-full bg-purple-600 hover:bg-purple-500 transition-all"
+              {/* Vinyl Record */}
+              <motion.div
+                animate={isPlaying ? { rotate: 360 } : {}}
+                transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+                className="absolute inset-3 rounded-full overflow-hidden"
               >
-                {isPlaying ? (
-                  <Pause size={16} className="text-white" fill="white" />
-                ) : (
-                  <Play size={16} className="text-white" fill="white" />
-                )}
-              </motion.button>
+                {/* Matte black base */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-950 rounded-full" />
 
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                onClick={onTogglePlaylist}
-                className="p-2 rounded-full border border-purple-500/30 hover:bg-purple-500/10"
+                {/* Vinyl groove texture */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 200" preserveAspectRatio="none">
+                  <defs>
+                    <radialGradient id="vinyl-groove-mobile">
+                      <stop offset="0%" stopColor="rgba(255,255,255,0.02)" />
+                      <stop offset="50%" stopColor="rgba(255,255,255,0.005)" />
+                      <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+                    </radialGradient>
+                  </defs>
+                  {[...Array(10)].map((_, i) => (
+                    <circle
+                      key={i}
+                      cx="100"
+                      cy="100"
+                      r={15 + i * 10}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.03)"
+                      strokeWidth="0.5"
+                    />
+                  ))}
+                </svg>
+
+                {/* Vinyl reflection */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 via-transparent to-cyan-600/20" />
+              </motion.div>
+
+              {/* Center label - Compact */}
+              <motion.div
+                animate={isPlaying ? { rotate: 360 } : {}}
+                transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+                className="absolute inset-12 rounded-full flex flex-col items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 50%, #b44dff 100%)',
+                  boxShadow: '0 0 30px rgba(180,77,255,0.8), inset 0 0 15px rgba(0,0,0,0.5)',
+                }}
               >
-                <ChevronDown size={16} className="text-purple-400" />
-              </motion.button>
+                <p className="text-white font-black text-xs tracking-widest uppercase text-center line-clamp-1">
+                  {currentTrackIndex + 1}/{tracks.length}
+                </p>
+
+                {/* Spinning center dot */}
+                <motion.div
+                  animate={isPlaying ? { scale: [1, 1.2, 1] } : {}}
+                  transition={isPlaying ? { duration: 1, repeat: Infinity } : {}}
+                  className="w-2 h-2 bg-white rounded-full mt-2 opacity-80"
+                />
+              </motion.div>
+
+              {/* Compact needle */}
+              <motion.div
+                animate={isPlaying ? { rotate: [0, 3, 0] } : {}}
+                transition={isPlaying ? { duration: 0.5, repeat: Infinity, repeatType: 'mirror' } : {}}
+                className="absolute top-0 right-1/3 w-8 h-16 origin-top"
+                style={{
+                  transformOrigin: '50% 0%',
+                }}
+              >
+                <div className="w-0.5 h-full bg-gradient-to-b from-gray-300 to-gray-600 rounded-full" />
+                <div className="absolute -bottom-2 -right-0.5 w-3 h-3 bg-gradient-to-br from-gray-400 to-gray-700 rounded-full border border-gray-300" />
+              </motion.div>
             </div>
-          </div>
+
+            {/* Glow ring */}
+            <motion.div
+              animate={isPlaying ? { opacity: [0.5, 1, 0.5] } : {}}
+              transition={isPlaying ? { duration: 2, repeat: Infinity } : {}}
+              className="absolute -inset-6 rounded-full border-2 border-purple-500/30"
+              style={{
+                boxShadow: isPlaying
+                  ? '0 0 40px rgba(180,77,255,0.6), 0 0 80px rgba(236,72,153,0.4)'
+                  : '0 0 15px rgba(180,77,255,0.3)',
+              }}
+            />
+          </motion.div>
+
+          {/* Track Info - Below Turntable */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-center mb-8 w-full max-w-sm"
+          >
+            <p className="text-purple-400 font-black text-xs tracking-widest uppercase mb-2 line-clamp-1">
+              {tracks[currentTrackIndex]?.trackName}
+            </p>
+            <p className="text-gray-300 font-bold text-sm mb-1 line-clamp-1">
+              {tracks[currentTrackIndex]?.artistNames}
+            </p>
+            <p className={`text-xs font-semibold tracking-widest uppercase ${
+              tracks[currentTrackIndex]?.previewUrl ? 'text-green-400' : 'text-orange-400'
+            }`}>
+              {tracks[currentTrackIndex]?.previewUrl ? '✓ Preview Available' : '⚠ Preview Unavailable'}
+            </p>
+          </motion.div>
+
+          {/* Mobile Controls */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5, type: 'spring', stiffness: 100 }}
+            className="glass neon-border rounded-full px-6 py-4 flex items-center gap-6 mb-6"
+          >
+            {/* Prev Button */}
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onPrev}
+              disabled={currentTrackIndex === 0}
+              className="p-2 rounded-full hover:bg-purple-500/20 disabled:opacity-30 transition-all"
+            >
+              <SkipBack size={20} className="text-purple-400" />
+            </motion.button>
+
+            {/* Play/Pause - Center */}
+            <motion.button
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onPlayPause}
+              className="relative p-3 rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 100%)',
+                boxShadow: isPlaying
+                  ? '0 0 30px rgba(180,77,255,0.8), 0 0 60px rgba(236,72,153,0.6)'
+                  : '0 0 15px rgba(180,77,255,0.4)',
+              }}
+              animate={isPlaying ? { scale: [1, 1.05, 1] } : {}}
+              transition={isPlaying ? { duration: 1.5, repeat: Infinity } : {}}
+            >
+              {isPlaying ? (
+                <Pause size={22} className="text-white" fill="white" />
+              ) : (
+                <Play size={22} className="text-white" fill="white" />
+              )}
+            </motion.button>
+
+            {/* Next Button */}
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onNext}
+              disabled={currentTrackIndex === tracks.length - 1}
+              className="p-2 rounded-full hover:bg-purple-500/20 disabled:opacity-30 transition-all"
+            >
+              <SkipForward size={20} className="text-purple-400" />
+            </motion.button>
+          </motion.div>
+
+          {/* Playlist Toggle & Upload */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex gap-3 w-full max-w-sm"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onTogglePlaylist}
+              className="flex-1 glass neon-border rounded-lg px-4 py-3 font-bold text-xs uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-all"
+            >
+              {showPlaylist ? '◄ Close' : 'Playlist ►'}
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onUpload}
+              className="flex-1 glass rounded-lg px-4 py-3 font-bold text-xs uppercase tracking-wider text-gray-300 hover:text-white transition-all border border-gray-600/30"
+            >
+              Load CSV
+            </motion.button>
+          </motion.div>
         </motion.div>
       )}
 
