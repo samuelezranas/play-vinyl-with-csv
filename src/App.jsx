@@ -425,15 +425,36 @@ function App() {
                 </div>
               </motion.button>
 
-              {/* Subtitle */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+              {/* Subtitle & Documentation Links */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
-                className="text-center text-xs text-gray-500 mt-8 font-mono tracking-wide"
+                className="mt-8 flex flex-col items-center gap-2 font-mono text-xs tracking-wide"
               >
-                Supports Spotify Exportify CSV Format
-              </motion.p>
+                <p className="text-gray-500 text-center">
+                  Supports Spotify Exportify CSV Format
+                </p>
+                <div className="flex items-center gap-4 text-gray-400">
+                  <a 
+                    href="https://watsonbox.github.io/exportify/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-purple-400 transition-all duration-300 hover:text-purple-300 hover:underline hover:shadow-[0_0_10px_rgba(180,77,255,0.3)]"
+                  >
+                    <span className="text-[10px]mr-1">🔗</span> Get CSV via Exportify
+                  </a>
+                  <span className="text-gray-700">|</span>
+                  <a 
+                    href="https://github.com/samuelezranas/play-vinyl-with-csv/blob/main/INSTRUCTIONS.md" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-cyan-400 transition-all duration-300 hover:text-cyan-300 hover:underline hover:shadow-[0_0_10px_rgba(0,255,255,0.3)]"
+                  >
+                    <span className="text-[10px] mr-1">📖</span> Setup Instructions
+                  </a>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         ) : (
