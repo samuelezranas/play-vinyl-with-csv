@@ -172,74 +172,90 @@ export default function PlayVinylCSV({
 
             {/* Floating Controller Pill */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 40 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6, type: 'spring', stiffness: 100 }}
-              className="glass neon-border rounded-full px-8 py-6 flex items-center gap-8"
+            initial={{ scale: 0.8, opacity: 0, y: 40 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6, type: 'spring', stiffness: 100 }}
+            className="glass neon-border rounded-full px-8 py-6 flex items-center gap-8"
             >
-              {/* Prev Button */}
-              <motion.button
+            {/* Prev Button */}
+            <motion.button
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onPrev}
                 disabled={currentTrackIndex === 0}
-                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all"
-              >
+                title="Previous Track"
+                aria-label="Previous Track"
+                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all cursor-pointer"
+            >
                 <SkipBack size={24} className="text-purple-400" />
-              </motion.button>
+            </motion.button>
 
-              {/* Seek Back */}
-              <motion.button
+            {/* Seek Back (-5s) */}
+            <motion.button
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onSeekBack}
-                className="p-3 rounded-full hover:bg-purple-500/20 transition-all"
-              >
+                title="Rewind 5 Seconds"
+                aria-label="Rewind 5 Seconds"
+                className="p-3 rounded-full hover:bg-purple-500/20 transition-all relative flex items-center justify-center cursor-pointer"
+            >
                 <RotateCcw size={20} className="text-gray-400" />
-              </motion.button>
+                <span className="absolute text-[9px] font-mono font-bold text-gray-400 top-[17px]">
+                5
+                </span>
+            </motion.button>
 
-              {/* Play/Pause - Center */}
-              <motion.button
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={onPlayPause}
-                className="relative p-4 rounded-full"
-                style={{
-                  background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 100%)',
-                  boxShadow: isPlaying
-                    ? '0 0 40px rgba(180,77,255,0.8), 0 0 80px rgba(236,72,153,0.6)'
-                    : '0 0 20px rgba(180,77,255,0.4)',
-                }}
-                animate={isPlaying ? { scale: [1, 1.05, 1] } : {}}
-                transition={isPlaying ? { duration: 1.5, repeat: Infinity } : {}}
-              >
-                {isPlaying ? (
-                  <Pause size={28} className="text-white" fill="white" />
-                ) : (
-                  <Play size={28} className="text-white" fill="white" />
-                )}
-              </motion.button>
+            {/* Play/Pause - Center */}
+            <motion.button
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 1.0 }}
+            onClick={onPlayPause}
+            title={isPlaying ? "Pause" : "Play"}
+            className="relative p-4 rounded-full"
+            style={{
+                background: 'linear-gradient(135deg, #b44dff 0%, #ec4899 100%)',
+                boxShadow: isPlaying
+                ? '0 0 40px rgba(180,77,255,0.8), 0 0 80px rgba(236,72,153,0.6)'
+                : '0 0 20px rgba(180,77,255,0.4)',
+            }}
+            animate={isPlaying ? { scale: [1, 1.05, 1] } : {}}
+            transition={isPlaying ? { duration: 1.5, repeat: Infinity } : {}}
+            >
+            {isPlaying ? (
+                <Pause size={28} className="text-white" fill="white" />
+            ) : (
+                <Play size={28} className="text-white" fill="white" />
+            )}
+            </motion.button>
 
-              {/* Seek Forward */}
-              <motion.button
+            {/* Seek Forward (+5s) */}
+            <motion.button
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onSeekForward}
-                className="p-3 rounded-full hover:bg-purple-500/20 transition-all"
-              >
-                <RotateCcw size={20} className="text-gray-400 rotate-180" />
-              </motion.button>
+                title="Forward 5 Seconds"
+                aria-label="Forward 5 Seconds"
+                className="p-3 rounded-full hover:bg-purple-500/20 transition-all relative flex items-center justify-center cursor-pointer"
+            >
+                {/* Menggunakan RotateCcw yang di-rotate 180 derajat untuk fungsi Forward (searah jarum jam) */}
+                <RotateCcw size={20} className="text-gray-400 transform rotate-180 scale-x-[-1]" />
+                <span className="absolute text-[9px] font-mono font-bold text-gray-400 top-[17px]">
+                5
+                </span>
+            </motion.button>
 
-              {/* Next Button */}
-              <motion.button
+            {/* Next Button */}
+            <motion.button
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onNext}
                 disabled={currentTrackIndex === tracks.length - 1}
-                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all"
-              >
+                title="Next Track"
+                aria-label="Next Track"
+                className="p-3 rounded-full hover:bg-purple-500/20 disabled:opacity-50 transition-all cursor-pointer"
+            >
                 <SkipForward size={24} className="text-purple-400" />
-              </motion.button>
+            </motion.button>
             </motion.div>
 
             {/* Playlist Toggle & Upload */}
