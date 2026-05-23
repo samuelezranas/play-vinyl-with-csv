@@ -1,6 +1,6 @@
 # Play Vinyl CSV
 
-🎵 **TECH-FUSION Cyber Vinyl Audio Portal** — A visually stunning React application that transforms Spotify Exportify CSV playlists into an interactive vinyl record player with Blade Runner/Iron Man HUD aesthetics.
+A visually stunning React application that transforms Spotify Exportify CSV playlists into an interactive vinyl record player with Blade Runner/Iron Man HUD aesthetics.
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![React](https://img.shields.io/badge/React-19.2.6-61dafb)
@@ -97,7 +97,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/play-vinyl-csv.git
+git clone https://github.com/samuelezranas/play-vinyl-csv.git
 cd play-vinyl-csv
 
 # Install dependencies
